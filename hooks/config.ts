@@ -4,14 +4,14 @@ import { useRouter } from 'next/router'
 
 export const useConfig = () => {
   let router = useRouter()
-  let { config: configUrl } = router.query
+  let { config: url } = router.query
 
-  if (!configUrl) {
+  if (!url) {
     throw Error('No ?config URL provided')
   }
 
   return useQuery('config', async () => {
-    let result = await fetch(configUrl as string)
+    let result = await fetch(url as string)
     let config = await result.json()
     let errors = validateConfig(config)
     if (errors.length === 0) {

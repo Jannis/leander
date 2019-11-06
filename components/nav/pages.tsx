@@ -13,7 +13,10 @@ const Pages: React.FunctionComponent<{}> = props => {
     <Section title="Views">
       {config.pages.map(page => (
         <div key={page.route} className={page.route === query.page ? 'active' : null}>
-          <Link href="[page]" as={page.route}>
+          <Link
+            href={{ pathname: '[page]', query: { config: query.config } }}
+            as={{ pathname: page.route, query: { config: query.config } }}
+          >
             <a>{page.title}</a>
           </Link>
           <style jsx>{`
