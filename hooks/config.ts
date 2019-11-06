@@ -1,8 +1,8 @@
 import { useQuery } from 'react-query'
-import { validateConfig } from '../utils/config'
+import { validateConfig, Config } from '../utils/config'
 import { useRouter } from 'next/router'
 
-export const useConfig = () => {
+export const useConfig = (): { data: Config } => {
   let router = useRouter()
   let { config: url } = router.query
 

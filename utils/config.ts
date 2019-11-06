@@ -10,6 +10,44 @@ import {
   UnionTypeDefinitionNode,
 } from 'graphql'
 
+/**
+ * Config types.
+ */
+
+export enum Order {
+  asc,
+  desc,
+}
+
+export interface FieldOrder {
+  field: string
+  order: Order
+}
+
+export interface FlatView {
+  order: FieldOrder[]
+}
+
+export interface Section {
+  title: string
+  flatView?: FlatView
+}
+
+export interface Page {
+  route: string
+  title: string
+  sections: Section[]
+}
+
+export interface Config {
+  organization: string
+  repositories: string[]
+  pages: Page[]
+}
+
+/**
+ * GraphQL schema for validation.
+ */
 export const schema = gql`
   scalar String
   scalar Int
@@ -29,11 +67,8 @@ export const schema = gql`
 
   type Section {
     title: String
-    viewType: String! # should be an enum
-    view: View!
+    flatView: FlatView
   }
-
-  union View = FlatView
 
   type FlatView {
     order: [FieldOrder!]!
@@ -49,6 +84,10 @@ export const schema = gql`
     desc
   }
 `
+
+/**
+ * Config validation using the GraphQL schema.
+ */
 
 export type ValidationError = {
   path: string[]
