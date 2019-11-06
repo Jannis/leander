@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { useConfig } from '../../hooks/config'
 import { useOrganization } from '../../hooks/organization'
 import GitHubLink from './github-link'
-import Section from './section'
+import Section from './nav-section'
 import { useRouter } from 'next/router'
 
 const Pages: React.FunctionComponent<{}> = props => {

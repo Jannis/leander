@@ -1,4 +1,4 @@
-const Section: React.FunctionComponent<{ title: string }> = ({ title, children }) => (
+const NavSection: React.FunctionComponent<{ title: string }> = ({ title, children }) => (
   <div className="root">
     <h2>{title}</h2>
     <div>{children}</div>
@@ -15,4 +15,4 @@ const Section: React.FunctionComponent<{ title: string }> = ({ title, children }
   </div>
 )
 
-export default Section
+export default NavSection
