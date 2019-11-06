@@ -5,14 +5,13 @@ import NavSection from './nav-section'
 
 const Repositories: React.FunctionComponent<{}> = props => {
   const { data: config } = useConfig()
-  const { data: organization } = useOrganization(config.organization)
 
   return (
     <NavSection title="Repositories">
       {config.repositories.map(repository => (
         <GitHubLink
           key={repository}
-          url={`https://github.com/${organization.login}/${repository}`}
+          url={`https://github.com/${config.organization}/${repository}`}
         >
           {repository}
         </GitHubLink>
