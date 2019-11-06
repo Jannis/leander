@@ -11,10 +11,13 @@ useReactQueryConfig({
   suspense: true,
 })
 
+const PageTitle: React.FunctionComponent<{ title: string }> = ({ title }) => (
+  <h2>{title}</h2>
+)
+
 const CustomPage: React.FunctionComponent<{}> = props => {
   let router = useRouter()
   let { page: route } = router.query
-
   let { data: config } = useConfig()
 
   let page = config.pages.find(page => page.route === route)
@@ -22,7 +25,11 @@ const CustomPage: React.FunctionComponent<{}> = props => {
     return <div>Unknown page "{route}"</div>
   }
 
-  return <div>{route}</div>
+  return (
+    <div>
+      <PageTitle title={page.title} />
+    </div>
+  )
 }
 
 export default () => (
