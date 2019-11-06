@@ -7,6 +7,7 @@ import {
   TypeSystemDefinitionNode,
   print,
   ScalarTypeDefinitionNode,
+  UnionTypeDefinitionNode,
 } from 'graphql'
 
 export const schema = gql`
@@ -23,6 +24,29 @@ export const schema = gql`
   type Page {
     route: String!
     title: String!
+    sections: [Section!]!
+  }
+
+  type Section {
+    title: String
+    viewType: String! # should be an enum
+    view: View!
+  }
+
+  union View = FlatView
+
+  type FlatView {
+    order: [FieldOrder!]!
+  }
+
+  type FieldOrder {
+    field: String!
+    order: Order!
+  }
+
+  enum Order {
+    asc
+    desc
   }
 `
 
@@ -35,18 +59,6 @@ const error = (path: string[], msg: string) => ({
   path,
   msg,
 })
-
-const unwrapFieldType = (type: TypeNode, schema: DocumentNode, nonNull?: boolean) =>
-  type.kind === 'NonNullType'
-    ? unwrapFieldType(type.type, schema, true)
-    : type.kind === 'ListType'
-    ? unwrapFieldType(type.type, schema, nonNull || false)
-    : {
-        innerType: schema.definitions.find(
-          (def: any) => def.name.value === type.name.value,
-        ),
-        nonNull,
-      }
 
 const validateScalar = (
   path: string[],
@@ -76,7 +88,37 @@ const validateScalar = (
     : [error(path, `unsupported scalar type: ${scalarType.name.value}`)]
 }
 
-const validateValue = (
+const validateUnion = (
+  path: string[],
+  value: any,
+  {
+    unionType,
+    schema,
+  }: {
+    unionType: UnionTypeDefinitionNode
+    schema: DocumentNode
+  },
+): ValidationError[] => {
+  console.log('Validate union', path, value)
+
+  for (let namedType of unionType.types) {
+    let errors = validateValue(path, value, { type: namedType, schema })
+    if (errors.length === 0) {
+      return []
+    }
+  }
+
+  return [
+    error(
+      path,
+      `value is not one of [${unionType.types.map(t => t.name)}]: ${JSON.stringify(
+        value,
+      )}`,
+    ),
+  ]
+}
+
+const validateNamedType = (
   path: string[],
   value: any,
   {
@@ -97,6 +139,8 @@ const validateValue = (
     ? validateObject(path, value, { objectType: typeDef, schema })
     : typeDef.kind === 'ScalarTypeDefinition'
     ? validateScalar(path, value, { scalarType: typeDef, schema })
+    : typeDef.kind === 'UnionTypeDefinition'
+    ? validateUnion(path, value, { unionType: typeDef, schema })
     : []
 }
 
@@ -104,10 +148,10 @@ const validateArray = (
   path: string[],
   values: any[],
   {
-    fieldType,
+    type,
     schema,
   }: {
-    fieldType: TypeNode
+    type: TypeNode
     schema: DocumentNode
   },
 ): ValidationError[] => {
@@ -115,33 +159,43 @@ const validateArray = (
 
   return values.reduce(
     (errors, value, index) =>
-      errors.concat(validateField([...path, `${index}`], value, { fieldType, schema })),
+      errors.concat(validateValue([...path, `${index}`], value, { type, schema })),
     [],
   )
 }
 
-const validateField = (
+const validateValue = (
   path: string[],
   value: any,
   {
-    fieldType,
+    type,
     schema,
+    nonNull,
   }: {
-    fieldType: TypeNode
+    type: TypeNode
     schema: DocumentNode
+    nonNull?: boolean
   },
 ): ValidationError[] => {
-  console.log('Validate field', path, value)
+  console.log('Validate value', path, value)
 
-  return fieldType.kind === 'NonNullType'
-    ? value != null
-      ? validateField(path, value, { fieldType: fieldType.type, schema })
+  if (nonNull && (value === null || value === undefined)) {
+    return [error(path, 'value must not be null')]
+  }
+
+  if (!nonNull && (value === null || value === undefined)) {
+    return []
+  }
+
+  return type.kind === 'NonNullType'
+    ? value != null && value !== undefined
+      ? validateValue(path, value, { type: type.type, schema, nonNull: true })
       : [error(path, 'value must not be null')]
-    : fieldType.kind === 'ListType'
+    : type.kind === 'ListType'
     ? Array.isArray(value)
-      ? validateArray(path, value, { fieldType: fieldType.type, schema })
+      ? validateArray(path, value, { type: type.type, schema })
       : [error(path, 'value must be an array')]
-    : validateValue(path, value, { typeName: fieldType.name.value, schema })
+    : validateNamedType(path, value, { typeName: type.name.value, schema })
 }
 
 const validateObject = (
@@ -164,8 +218,8 @@ const validateObject = (
   let errors = []
   for (let field of objectType.fields) {
     errors.push(
-      ...validateField([...path, field.name.value], o[field.name.value], {
-        fieldType: field.type,
+      ...validateValue([...path, field.name.value], o[field.name.value], {
+        type: field.type,
         schema,
       }),
     )
