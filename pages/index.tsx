@@ -14,7 +14,11 @@ useReactQueryConfig({
 export default () => {
   let router = useRouter()
   useEffect(() => {
-    router.push('/overview')
+    if (router.query.config) {
+      router.push(`/overview?config=${router.query.config}`)
+    } else {
+      router.push('/overview')
+    }
   })
   return <div />
 }

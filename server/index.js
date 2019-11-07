@@ -1,3 +1,4 @@
+const url = require('url')
 const express = require('express')
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
@@ -58,7 +59,12 @@ app.prepare().then(() => {
     '/auth/github/callback',
     passport.authenticate('github', { failureRedirect: '/login' }),
     (req, res) => {
-      res.redirect('/')
+      res.redirect(
+        url.format({
+          pathname: '/',
+          query: req.query,
+        }),
+      )
     },
   )
 
