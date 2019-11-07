@@ -1,7 +1,18 @@
 import { useQuery } from 'react-query'
 import { useGitHubQuery } from './github'
+import { User, Organization } from '../utils/types'
 
-export const useOrganization = (name: string) => {
+const parseOrganization = (node: any): Organization => ({
+  login: node.login,
+  name: node.name,
+  members: node.membersWithRole.nodes.map((member: any) => ({
+    login: member.login,
+    name: member.name,
+    avatarUrl: member.avatarUrl,
+  })),
+})
+
+export const useOrganization = (name: string): { data: Organization } => {
   let result = useGitHubQuery(
     `query organization($login: String!) {
        organization(login: $login) {
@@ -20,7 +31,7 @@ export const useOrganization = (name: string) => {
   )
 
   if (result.data) {
-    result.data = result.data.organization
+    result.data = parseOrganization(result.data.organization)
   }
 
   return result
