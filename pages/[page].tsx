@@ -59,8 +59,8 @@ const CustomPage: React.FunctionComponent<{}> = props => {
     <div>
       <PageTitle title={page.title} />
       <div>
-        {page.sections.map(section => (
-          <PageSection section={section} />
+        {page.sections.map((section, index) => (
+          <PageSection key={`${index}`} section={section} />
         ))}
       </div>
     </div>
