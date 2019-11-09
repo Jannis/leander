@@ -12,23 +12,16 @@ const Pages: React.FunctionComponent<{}> = props => {
   return (
     <Section title="Views">
       {config.pages.map(page => (
-        <div key={page.route} className={page.route === query.page ? 'active' : null}>
+        <div
+          key={page.route}
+          className={page.route === query.page ? 'text-indigo-500 font-normal' : null}
+        >
           <Link
             href={{ pathname: '[page]', query: { config: query.config } }}
             as={{ pathname: page.route, query: { config: query.config } }}
           >
-            <a>{page.title}</a>
+            <a className="hover:text-indigo-500">{page.title}</a>
           </Link>
-          <style jsx>{`
-            a {
-              color: black;
-              text-decoration: none;
-            }
-
-            .active a {
-              text-decoration: underline;
-            }
-          `}</style>
         </div>
       ))}
     </Section>

@@ -19,18 +19,49 @@ export enum Order {
   desc,
 }
 
+export type Column =
+  | 'link'
+  | 'number'
+  | 'title'
+  | 'severity'
+  | 'age'
+  | 'updated'
+  | 'assigned'
+  | 'phase'
+  | 'source'
+  | 'status'
+  | 'triaged'
+  | 'activity'
+  | 'projects'
+  | 'priority'
+  | 'size'
+
 export interface FieldOrder {
   field: string
   order: Order
 }
 
+export type Filter = any
+
 export interface FlatView {
+  columns: Column[]
+  filter?: Filter
+  pageSize?: number
+  order: FieldOrder[]
+}
+
+export interface GroupedView {
+  groupBy: string
+  columns: Column[]
+  filter?: Filter
+  pageSize?: number
   order: FieldOrder[]
 }
 
 export interface Section {
   title: string
   flatView?: FlatView
+  groupedView?: GroupedView
 }
 
 export interface Page {
@@ -52,6 +83,25 @@ export const schema = gql`
   scalar String
   scalar Int
   scalar Boolean
+  scalar Any
+
+  enum Column {
+    link
+    number
+    title
+    severity
+    age
+    updated
+    assigned
+    phase
+    source
+    status
+    triaged
+    activity
+    projects
+    priority
+    size
+  }
 
   type Config {
     organization: String!
@@ -68,9 +118,21 @@ export const schema = gql`
   type Section {
     title: String
     flatView: FlatView
+    groupedView: GroupedView
   }
 
   type FlatView {
+    columns: [Column!]!
+    filter: Any
+    pageSize: Int
+    order: [FieldOrder!]!
+  }
+
+  type GroupedView {
+    groupBy: String!
+    columns: [Column!]!
+    filter: Any
+    pageSize: Int
     order: [FieldOrder!]!
   }
 
@@ -110,8 +172,6 @@ const validateScalar = (
     schema: DocumentNode
   },
 ): ValidationError[] => {
-  console.log('Validate scalar', path, value)
-
   return scalarType.name.value === 'String'
     ? typeof value === 'string'
       ? []
@@ -124,6 +184,8 @@ const validateScalar = (
     ? typeof value === 'number' && Number.isInteger(value)
       ? []
       : [error(path, `value is not an int: ${JSON.stringify(value)}`)]
+    : scalarType.name.value === 'Any'
+    ? []
     : [error(path, `unsupported scalar type: ${scalarType.name.value}`)]
 }
 
@@ -138,8 +200,6 @@ const validateUnion = (
     schema: DocumentNode
   },
 ): ValidationError[] => {
-  console.log('Validate union', path, value)
-
   for (let namedType of unionType.types) {
     let errors = validateValue(path, value, { type: namedType, schema })
     if (errors.length === 0) {
@@ -194,8 +254,6 @@ const validateArray = (
     schema: DocumentNode
   },
 ): ValidationError[] => {
-  console.log('Validate array', path, values)
-
   return values.reduce(
     (errors, value, index) =>
       errors.concat(validateValue([...path, `${index}`], value, { type, schema })),
@@ -216,8 +274,6 @@ const validateValue = (
     nonNull?: boolean
   },
 ): ValidationError[] => {
-  console.log('Validate value', path, value)
-
   if (nonNull && (value === null || value === undefined)) {
     return [error(path, 'value must not be null')]
   }
@@ -248,8 +304,6 @@ const validateObject = (
     schema: DocumentNode
   },
 ): ValidationError[] => {
-  console.log('Validate', path, o)
-
   if (typeof o !== 'object') {
     return [error(path, 'not an object')]
   }

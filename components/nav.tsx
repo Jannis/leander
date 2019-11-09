@@ -3,6 +3,7 @@ import Project from './nav/project'
 import { Suspense } from 'react'
 import Repositories from './nav/repositories'
 import Pages from './nav/pages'
+import { CircularProgress } from '@material-ui/core'
 
 const Logo: React.FunctionComponent<{}> = props => (
   <div className="logo">
@@ -28,7 +29,13 @@ const Nav: React.FunctionComponent<{}> = props => {
   return (
     <div className="nav">
       <Logo />
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense
+        fallback={
+          <div>
+            <CircularProgress />
+          </div>
+        }
+      >
         <>
           <Project />
           <Repositories />
