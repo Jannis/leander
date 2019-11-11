@@ -173,13 +173,19 @@ export const useSetAssignees = (): any => {
   let [updateAssignees, result] = useMutation(UPDATE_ASSIGNEES_MUTATION)
 
   let wrappedMutation = ({ issue, assignees }: SetAssigneesOptions) => {
-    let assigneesToRemove = assignees.filter(id =>
-      issue.stats.assignees.find(user => user.id === id),
-    )
-    let assigneesToAdd = assignees.filter(
-      id => issue.stats.assignees.find(user => user.id === id) === undefined,
-    )
+    let assigneesToRemove = issue.stats.assignees
+      .filter(
+        existingAssignee =>
+          !assignees.find(newAssigneeId => newAssigneeId === existingAssignee.id),
+      )
+      .map(user => user.id)
 
+    let assigneesToAdd = assignees.filter(
+      newAssigneeId =>
+        !issue.stats.assignees.find(
+          existingAssignee => existingAssignee.id === newAssigneeId,
+        ),
+    )
     updateAssignees({ variables: { issue: issue.id, assigneesToRemove, assigneesToAdd } })
   }
 
