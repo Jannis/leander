@@ -1,0 +1,7 @@
+{
+  "env": {
+    "GITHUB_CLIENT_ID": "@leander-github-client-id",
+    "GITHUB_CLIENT_SECRET": "@leander-github-client-secret",
+    "SESSION_SECRET": "@leander-session-secret"
+  }
+}
