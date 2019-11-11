@@ -54,7 +54,7 @@ app.prepare().then(async () => {
       {
         clientID: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
-        callbackURL: 'http://localhost:3000/login/callback',
+        callbackURL: process.env.GITHUB_CALLBACK_URL,
       },
       function(accessToken, refreshToken, profile, cb) {
         return cb(undefined, { accessToken })
