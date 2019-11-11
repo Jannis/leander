@@ -43,12 +43,12 @@ const SeverityActions: React.FunctionComponent<Props> = ({ issue }) => {
       <div className="font-medium">Severity</div>
       <Radio.Group
         defaultValue={issue.stats.severity || 'unknown'}
-        onChange={e => {
+        onChange={e =>
           setSeverity({
             issue,
             severity: e.target.value === 'unknown' ? null : e.target.value,
           })
-        }}
+        }
       >
         {choices.map(choice => (
           <Radio.Button key={choice.value} value={choice.value}>
@@ -88,12 +88,12 @@ const PriorityActions: React.FunctionComponent<Props> = ({ issue }) => {
       </div>
       <Radio.Group
         defaultValue={issue.stats.priority || 'unknown'}
-        onChange={e => {
+        onChange={e =>
           setPriority({
             issue,
             priority: e.target.value === 'unknown' ? null : e.target.value,
           })
-        }}
+        }
       >
         {choices.map(choice => (
           <Radio.Button key={choice.value} value={choice.value}>
@@ -128,12 +128,7 @@ const ProjectActions: React.FunctionComponent<Props> = ({ issue }) => {
         className="w-64"
         mode="multiple"
         defaultValue={issue.stats.projects.map(label => label.id)}
-        onChange={projects => {
-          setProjects({
-            issue,
-            projects,
-          })
-        }}
+        onChange={projects => setProjects({ issue, projects })}
       >
         {choices.map(choice => (
           <Select.Option key={choice.value} value={choice.value}>
@@ -155,9 +150,7 @@ const AssigneeActions: React.FunctionComponent<Props> = ({ issue }) => {
         className="w-64"
         mode="multiple"
         defaultValue={issue.stats.assignees.map(user => user.id)}
-        onChange={assignees => {
-          setAssignees({ issue, assignees })
-        }}
+        onChange={assignees => setAssignees({ issue, assignees })}
       >
         {issue.repository.organization.members.map(member => (
           <Select.Option key={member.id} value={member.id}>
