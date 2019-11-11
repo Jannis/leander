@@ -9,7 +9,7 @@ import Nav from './nav'
 
 let client = new ApolloClient({
   link: new HttpLink({
-    uri: `http://${window.location.host}/graphql`,
+    uri: `${window.location.protocol}//${window.location.host}/graphql`,
   }),
   cache: new InMemoryCache(),
 })
