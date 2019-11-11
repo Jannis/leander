@@ -5,31 +5,34 @@ Efficient and transparent management of GitHub issues.
 ## Todo
 
 - [x] Authentication via GitHub App
-- [ ] Configuration
+- [x] Configuration
   - [x] `useConfig` hook
-  - [ ] Load config from `?config` URL parameter
-  - [ ] Configuration spec as a GraphQL schema
-  - [ ] Validate configuration
+  - [x] Load config from `?config` URL parameter
+  - [x] Configuration spec as a GraphQL schema
+  - [x] Validate configuration
 - [x] Navigation
   - [x] Project
   - [x] Repositories
   - [x] Pages
 - [ ] Issues
-  - [ ] Data model
-  - [ ] Metrics model
-  - [ ] Load issues
-  - [ ] Compute metrics
+  - [x] Data model
+  - [x] Metrics model
+  - [x] Load issues
+  - [x] Compute metrics
 - [ ] Components
-  - [ ] `IssueTable` component
+  - [x] `IssueTable` component
   - [ ] `IssueActions` component for actions
-  - [ ] More... (charts, issue groups)
-- [ ] Actions
-  - [ ] Assigning issues
-  - [ ] Closing issues (with a comment)
-  - [ ] Prioritizing issues
-  - [ ] Managing severity
-  - [ ] Managing affected projects
-  - [ ] More...
+    - [x] Set severity
+    - [-] Set priority
+      - [ ] Add priority labels if they don't exist in the repo
+    - [x] Set assignees
+    - [-] Set projects
+      - [ ] Add project labels if they don't exist in the repo
+    - [ ] Close issue with a comment
+  - [ ] Views
+    - [x] Flat list
+    - [x] Grouped by e.g. label or assignee
+    - [ ] Charts
 
 ## License
 
