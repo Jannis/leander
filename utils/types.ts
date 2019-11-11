@@ -1,6 +1,7 @@
 import { Duration } from 'moment'
 
 export interface User {
+  id: string
   login: string
   name?: string
   avatarUrl: string
@@ -29,7 +30,7 @@ export interface IssueStats {
   age: Duration
   updated: Duration
   status: 'open' | 'closed'
-  severity: 'bug' | 'feature' | 'unknown'
+  severity?: 'bug' | 'feature'
   priority?: 'p0' | 'p1' | 'p2' | 'p3'
   source: 'internal' | 'external'
   assigned: boolean
