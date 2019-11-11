@@ -2,9 +2,12 @@ const url = require('url')
 const express = require('express')
 const session = require('express-session')
 const cookieParser = require('cookie-parser')
+const cors = require('express-cors')
 const next = require('next')
 const passport = require('passport')
 const GitHubStrategy = require('passport-github').Strategy
+const { GraphQLError } = require('graphql')
+const { installGraphQLServer } = require('./graphql')
 
 require('dotenv').config()
 
@@ -13,9 +16,19 @@ const dev = process.env.NODE_ENV !== 'production'
 const app = next({ dev })
 const handle = app.getRequestHandler()
 
-app.prepare().then(() => {
+app.prepare().then(async () => {
   const server = express()
 
+  /**
+   * Authentication
+   */
+
+  server.use(
+    cors({
+      origin: '*',
+      credentials: true,
+    }),
+  )
   server.use(cookieParser())
   server.use(
     session({
@@ -27,10 +40,9 @@ app.prepare().then(() => {
         maxAge: 86400 * 1000,
         httpOnly: false,
       },
-      name: 'leander',
+      name: 'leander-session',
     }),
   )
-
   passport.serializeUser((user, done) => {
     done(null, user)
   })
@@ -42,7 +54,7 @@ app.prepare().then(() => {
       {
         clientID: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
-        callbackURL: 'http://localhost:3000/auth/github/callback',
+        callbackURL: 'http://localhost:3000/login/callback',
       },
       function(accessToken, refreshToken, profile, cb) {
         return cb(undefined, { accessToken })
@@ -53,33 +65,42 @@ app.prepare().then(() => {
   server.use(passport.initialize())
   server.use(passport.session())
 
-  server.get('/auth/github', passport.authenticate('github'))
+  server.get('/login', (req, res, next) => {
+    let { returnTo } = req.query
+    let state = Buffer.from(JSON.stringify({ returnTo })).toString('base64')
+
+    passport.authenticate('github', { state: state })(req, res, next)
+  })
 
   server.get(
-    '/auth/github/callback',
+    '/login/callback',
     passport.authenticate('github', { failureRedirect: '/login' }),
     (req, res) => {
-      res.redirect(
-        url.format({
-          pathname: '/',
-          query: req.query,
-        }),
-      )
+      let { state } = req.query
+      let { returnTo } = JSON.parse(Buffer.from(state, 'base64').toString())
+
+      res
+        .cookie('leander-access-token', req.user.accessToken, {
+          maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+        })
+        .redirect(url.format(returnTo))
     },
   )
-
-  server.get('/auth/github/access-token', (req, res) => {
-    if (!req.user) {
-      res.sendStatus(401)
-    } else {
-      res.send({ accessToken: req.user.accessToken })
-    }
-  })
 
   server.get('/logout', (req, res) => {
     req.logout()
     res.send(req.user)
   })
+
+  /**
+   * GraphQL server
+   */
+
+  await installGraphQLServer({ app: server, path: '/graphql' })
+
+  /**
+   * Frontend
+   */
 
   server.all('*', (req, res) => {
     return handle(req, res)
