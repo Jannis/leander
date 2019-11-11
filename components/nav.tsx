@@ -1,56 +1,39 @@
-import SentimentSatisfiedTwoToneIcon from '@material-ui/icons/SentimentSatisfiedTwoTone'
-import Project from './nav/project'
-import { Suspense } from 'react'
+import Organization from './nav/organization'
+import { Suspense, useState, useEffect } from 'react'
 import Repositories from './nav/repositories'
 import Pages from './nav/pages'
-import { CircularProgress } from '@material-ui/core'
+import { Icon, Spin } from 'antd'
 
-const Logo: React.FunctionComponent<{}> = props => (
-  <div className="logo">
-    <SentimentSatisfiedTwoToneIcon fontSize="large" />
-    <h1>Leander</h1>
-    <style jsx>{`
-      .logo {
-        color: #1890ff;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        margin-bottom: 16px;
-      }
-      h1 {
-        font-size: 1.2rem;
-        margin-left: 4px;
-      }
-    `}</style>
-  </div>
-)
+const Logo: React.FunctionComponent<{}> = props => {
+  let [spin, setSpin] = useState(true)
+
+  useEffect(() => {
+    setTimeout(() => setSpin(false), 2000)
+  })
+
+  return (
+    <div className="container flex flex-row items-center pt-4 pb-8">
+      <Icon type="smile" theme="twoTone" spin={spin} className="text-3xl" />
+      <h1 className="text-xl m-0 pl-2" style={{ color: '#1890ff' }}>
+        Leander
+      </h1>
+    </div>
+  )
+}
 
 const Nav: React.FunctionComponent<{}> = props => {
   return (
-    <div className="nav">
+    <div className="flex flex-col flex-grow-0 p-8" style={{ minWidth: '14rem' }}>
       <Logo />
       <Suspense
-        fallback={
-          <div>
-            <CircularProgress />
-          </div>
-        }
+        fallback={<Spin indicator={<Icon type="loading" className="text-2xl" spin />} />}
       >
         <>
-          <Project />
+          <Organization />
           <Repositories />
           <Pages />
         </>
       </Suspense>
-      <style jsx>{`
-        .nav {
-          display: flex;
-          flex-grow: 0;
-          flex-direction: column;
-          padding: 16px;
-          background: #eee;
-        }
-      `}</style>
     </div>
   )
 }

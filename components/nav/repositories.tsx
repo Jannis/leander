@@ -4,7 +4,9 @@ import GitHubLink from './github-link'
 import NavSection from './nav-section'
 
 const Repositories: React.FunctionComponent<{}> = props => {
-  const { data: config } = useConfig()
+  const config = useConfig()
+
+  config.repositories.sort()
 
   return (
     <NavSection title="Repositories">

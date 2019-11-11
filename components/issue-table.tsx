@@ -1,15 +1,11 @@
-import { useTable, usePagination, useExpanded, Column } from 'react-table'
-import BugReportOutlinedIcon from '@material-ui/icons/BugReportOutlined'
-import BuildOutlinedIcon from '@material-ui/icons/BuildOutlined'
-import HelpOutlineOutlinedIcon from '@material-ui/icons/HelpOutlineOutlined'
-import ErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined'
-import CheckCircleOutlineOutlinedIcon from '@material-ui/icons/CheckCircleOutlineOutlined'
-import CheckBoxOutlineBlankOutlinedIcon from '@material-ui/icons/CheckBoxOutlineBlankOutlined'
+import { useTable, usePagination, useExpanded, useSortBy, Column } from 'react-table'
+import { Icon, Avatar, Tag } from 'antd'
 import { Issue, Organization, Repository } from '../utils/types'
 import GitHubLink from './nav/github-link'
-import { Avatar, Chip, Paper, Link, Grid } from '@material-ui/core'
-import IssueDetails from './issue-details'
-import { Fragment } from 'react'
+import IssueActions from './issue-actions'
+import { Fragment, useState, useMemo } from 'react'
+import { stripLabelPrefix } from '../utils/labels'
+import moment from 'moment'
 
 const COLUMNS: { [key: string]: any } = {
   link: {
@@ -17,101 +13,125 @@ const COLUMNS: { [key: string]: any } = {
     id: 'number',
     Cell: ({ row: { original: issue } }) => (
       <div className="truncate">
-        <Link
+        <a
+          className="text-black hover:text-pink-500"
           target="_blank"
           href={`https://github.com/${issue.repository.organization.login}/${issue.repository.name}/issues/${issue.number}`}
         >
           {issue.repository.name}#{issue.number}
-        </Link>
+        </a>
       </div>
     ),
+    sortType: 'basic',
   },
   number: {
     Header: '#',
     accessor: 'number',
+    sortType: 'basic',
   },
   title: {
     Header: 'Title',
     accessor: 'title',
+    sortType: 'basic',
   },
   severity: {
     Header: 'Severity',
     accessor: 'stats.severity',
     Cell: ({ row, cell: { value: severity } }) =>
       severity === 'bug' ? (
-        <BugReportOutlinedIcon color="error" />
+        <Icon type="bug" theme="twoTone" twoToneColor="red" />
       ) : severity === 'feature' ? (
-        <BuildOutlinedIcon color="primary" />
+        <Icon type="build" theme="twoTone" twoToneColor="limeGreen" />
       ) : (
-        <HelpOutlineOutlinedIcon color="disabled" />
+        <Icon type="question-circle" theme="twoTone" twoToneColor="lightGray" />
       ),
+    sortType: ({ original: a }, { original: b }) => {
+      let aSeverity = a.stats.severity
+      let bSeverity = b.stats.severity
+      let severities = [null, 'feature', 'bug']
+      return severities.indexOf(aSeverity) - severities.indexOf(bSeverity)
+    },
   },
   age: {
     Header: 'Age',
     accessor: 'stats.age',
-    Cell: ({ cell: { value: age } }) =>
-      age.asDays() > 30 ? <span color="red">{age.humanize()}</span> : age.humanize(),
+    Cell: ({ cell: { value } }) => {
+      let age = moment.duration(parseInt(value))
+      return age.asDays() > 30 ? (
+        <span color="red">{age.humanize()}</span>
+      ) : (
+        age.humanize()
+      )
+    },
+    sortType: ({ original: a }, { original: b }) => {
+      let aDuration = moment.duration(parseInt(a.stats.age))
+      let bDuration = moment.duration(parseInt(b.stats.age))
+      return aDuration.subtract(bDuration)
+    },
   },
   updated: {
     Header: 'Updated',
     accessor: 'stats.updated',
-    Cell: ({ cell: { value: updated } }) =>
-      updated.asDays() > 7 ? (
+    Cell: ({ cell: { value } }) => {
+      let updated = moment.duration(parseInt(value))
+      return updated.asDays() > 7 ? (
         <span style={{ color: 'red' }}>{updated.humanize()}</span>
       ) : (
         updated.humanize()
-      ),
+      )
+    },
+    sortType: ({ original: a }, { original: b }) => {
+      let aDuration = moment.duration(parseInt(a.stats.updated))
+      let bDuration = moment.duration(parseInt(b.stats.updated))
+      return aDuration.subtract(bDuration)
+    },
   },
   assigned: {
     Header: 'Assigned',
     accessor: 'stats.assigned',
     Cell: ({ row: { original: issue } }) =>
       issue.stats.assignees.length > 0 ? (
-        <Grid container direction="row" alignItems="center">
+        <div className="container flex-row align-center">
           {issue.stats.assignees.map(assignee => (
             <Avatar
               key={assignee.login}
-              alt={assignee.name || assignee.login}
               src={assignee.avatarUrl}
-              style={{
-                width: '24px',
-                height: '24px',
-                marginRight: '1px',
-              }}
+              alt={assignee.name || assignee.login}
+              size="small"
             />
           ))}
-        </Grid>
+        </div>
       ) : (
-        <ErrorOutlineOutlinedIcon color="error" />
+        <Icon type="warning" theme="twoTone" twoToneColor="red" />
       ),
+    sortType: 'basic',
   },
   phase: {
     Header: 'Phase',
     accessor: 'stats.phase',
+    sortType: 'basic',
   },
   source: {
     Header: 'Source',
     accessor: 'stats.source',
     Cell: ({ cell: { value: source } }) => (source === 'internal' ? 'Team' : 'Community'),
-  },
-  status: {
-    Header: 'Status',
-    accessor: 'stats.status',
-    Cell: ({ cell: { value: status } }) => (status === 'open' ? 'Open' : 'Closed'),
+    sortType: 'basic',
   },
   triaged: {
     Header: 'Triaged',
     accessor: 'stats.triaged',
     Cell: ({ cell: { value: triaged } }) =>
       triaged ? (
-        <CheckCircleOutlineOutlinedIcon />
+        <Icon type="check-circle" theme="twoTone" twoToneColor="limeGreen" />
       ) : (
-        <ErrorOutlineOutlinedIcon color="error" />
+        <Icon type="warning" theme="twoTone" twoToneColor="red" />
       ),
+    sortType: 'basic',
   },
   activity: {
     Header: 'Activity',
     accessor: 'stats.activity',
+    sortType: 'basic',
   },
   projects: {
     Header: 'Projects',
@@ -119,20 +139,13 @@ const COLUMNS: { [key: string]: any } = {
     Cell: ({ cell: { value: projects } }) => (
       <>
         {projects.map(project => (
-          <Chip
-            key={project.name}
-            size="small"
-            label={project.name}
-            className="project"
-            style={{
-              borderColor: `#${project.color}`,
-              backgroundColor: `#${project.color}`,
-              marginRight: '1px',
-            }}
-          />
+          <Tag key={project.id} style={{ borderColor: `#${project.color}` }}>
+            {stripLabelPrefix(project.name)}
+          </Tag>
         ))}
       </>
     ),
+    sortType: 'basic',
   },
   priority: {
     Header: 'Priority',
@@ -141,9 +154,9 @@ const COLUMNS: { [key: string]: any } = {
       let colors = {
         p0: 'red',
         p1: 'darkOrange',
-        p2: 'orange',
-        p3: 'darkYellow',
-        undefined: 'darkGrey',
+        p2: 'purple',
+        p3: 'darkGray',
+        null: 'darkGrey',
       }
 
       return (
@@ -152,10 +165,18 @@ const COLUMNS: { [key: string]: any } = {
         </span>
       )
     },
+    sortType: ({ original: a }, { original: b }) => {
+      let aPriority = a.stats.priority
+      let bPriority = b.stats.priority
+      let priorities = [null, 'p3', 'p2', 'p1', 'p0']
+      return priorities.indexOf(aPriority) - priorities.indexOf(bPriority)
+    },
   },
   size: {
     Header: 'Size',
     accessor: 'stats.size',
+    Cell: ({ cell: { value: size } }) => <span>{size === null ? '' : size}</span>,
+    sortType: 'basci',
   },
 }
 
@@ -179,12 +200,22 @@ const Table: React.FunctionComponent<TableProps> = ({ columns, issues, pageSize 
     {
       columns,
       data: issues,
+      disablePageResetOnDataChange: true,
       initialState: {
-        pageIndex: 0,
         pageSize,
+        pageIndex: 0,
+        sortBy: useMemo(
+          () => [
+            { id: 'stats.priority', desc: true },
+            { id: 'stats.severity', desc: true },
+            { id: 'stats.updated', desc: true },
+          ],
+          [],
+        ),
       },
-    },
+    } as any,
     useExpanded,
+    useSortBy,
     usePagination,
   ) as any
 
@@ -195,12 +226,27 @@ const Table: React.FunctionComponent<TableProps> = ({ columns, issues, pageSize 
       >
         <thead>
           {headerGroups.map((headerGroup, index) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
+            <tr key={`${index}`} {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map((column, index) => (
                 <th
-                  {...column.getHeaderProps({ className: 'text-left font-medium p-2' })}
+                  {...column.getHeaderProps(
+                    column.getSortByToggleProps({
+                      className: 'text-left font-medium p-2',
+                    }),
+                  )}
                 >
-                  {column.render('Header')}
+                  <div className="flex flex-row items-center">
+                    {column.render('Header')}
+                    {column.isSorted ? (
+                      column.isSortedDesc ? (
+                        <Icon className="ml-1" type="caret-down" />
+                      ) : (
+                        <Icon className="ml-1" type="caret-up" />
+                      )
+                    ) : (
+                      ''
+                    )}
+                  </div>
                 </th>
               ))}
             </tr>
@@ -233,7 +279,7 @@ const Table: React.FunctionComponent<TableProps> = ({ columns, issues, pageSize 
                 {row.isExpanded ? (
                   <tr key={`expanded-${i}`}>
                     <td colSpan={columns.length}>
-                      <IssueDetails issue={row.original} />
+                      <IssueActions issue={row.original} />
                     </td>
                   </tr>
                 ) : null}
@@ -248,9 +294,13 @@ const Table: React.FunctionComponent<TableProps> = ({ columns, issues, pageSize 
           {[...new Array(pageCount)].map((_, index) => (
             <a
               key={`page-${index}`}
-              className={`ml-1 border inline-block w-8 text-center rounded border-grey-100 hover:border-indigo-500 cursor-pointer ${
-                index === pageIndex ? 'border-indigo-500' : ''
-              }`}
+              className={
+                `ml-1 border inline-block w-8 text-center rounded ` +
+                `text-gray-800 hover:text-gray-800 border-grey-100 ` +
+                `hover:border-black cursor-pointer ${
+                  index === pageIndex ? 'border-black' : ''
+                }`
+              }
               onClick={() => gotoPage(index)}
             >
               {index + 1}

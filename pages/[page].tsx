@@ -5,15 +5,17 @@ import dynamic from 'next/dynamic'
 import { useConfig } from '../hooks/config'
 import { VIEWS } from '../components/views'
 import { Config, Section } from '../utils/config'
-import { Grid, CircularProgress } from '@material-ui/core'
 import { Issue, Organization, Repository } from '../utils/types'
 import { useOrganization } from '../hooks/organization'
-import { useIssuesForRepositories } from '../hooks/issues'
-import { useRepositories } from '../hooks/repositories'
+import { useIssues } from '../hooks/issues'
+import { useRepositories } from '../hooks/repository'
 
 import '../styles/index.css'
+import 'antd/dist/antd.css'
 
-const Page = dynamic(() => import('../components/page'), { ssr: false })
+import { Spin, Icon } from 'antd'
+
+const DynamicPage = dynamic(() => import('../components/dynamic-page'), { ssr: false })
 
 interface Props {
   section: Section
@@ -63,22 +65,33 @@ const PageSection: React.FunctionComponent<Props> = ({
   )
 }
 
-const CustomPage: React.FunctionComponent<{}> = props => {
+const Page: React.FunctionComponent<{}> = props => {
   let router = useRouter()
-  let { page: route } = router.query
-  let { data: config } = useConfig()
+  let config = useConfig()
 
-  let page = config.pages.find(page => page.route === route)
+  let page = config.pages.find(page => page.route === router.query.page)
   if (!page) {
-    return <div>Unknown page "{route}"</div>
+    return <div>Unknown page "{router.query.page}"</div>
   }
 
-  const { data: organization } = useOrganization(config.organization)
-  const { data: repositories } = useRepositories(organization, config.repositories)
-  const { data: issues } = useIssuesForRepositories(repositories)
+  let organization = useOrganization(config.organization)
+
+  let repositories = useRepositories(organization, config.repositories)
+  repositories.forEach(repository => {
+    repository.organization = organization
+  })
+
+  let issues = useIssues(organization, repositories).map(issue => {
+    if (typeof issue.repository === 'string') {
+      issue.repository = repositories.find(
+        repo => repo.name === (issue.repository as any),
+      )
+    }
+    return issue
+  })
 
   return (
-    <Grid container direction="column" style={{ width: '100%' }}>
+    <div className="flex flex-col w-full pt-6 mt-1">
       <h2 className="text-2xl font-bold mb-4">{page.title}</h2>
       <div>
         {page.sections.map((section, index) => (
@@ -91,20 +104,24 @@ const CustomPage: React.FunctionComponent<{}> = props => {
           />
         ))}
       </div>
-    </Grid>
+    </div>
   )
 }
 
 export default () => (
-  <Page>
+  <DynamicPage>
     <Suspense
       fallback={
         <div className="w-full h-full flex justify-center items-center">
-          <CircularProgress />
+          <Spin
+            indicator={
+              <Icon type="smile" theme="twoTone" spin style={{ fontSize: 48 }} />
+            }
+          />
         </div>
       }
     >
-      <CustomPage />
+      <Page />
     </Suspense>
-  </Page>
+  </DynamicPage>
 )

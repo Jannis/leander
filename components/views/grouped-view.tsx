@@ -4,6 +4,7 @@ import { useOrganization } from '../../hooks/organization'
 import { Issue, Organization, Repository } from '../../utils/types'
 import IssueTable from '../issue-table'
 import { useState } from 'react'
+import { stripLabelPrefix } from '../../utils/labels'
 
 const searchjs = require('searchjs')
 
@@ -38,8 +39,8 @@ interface TabProps {
 const Tab: React.FunctionComponent<TabProps> = ({ title, active, activate }) => (
   <a
     onClick={() => activate()}
-    className={`py-4 mr-4 capitalize cursor-pointer hover:text-indigo-500 ${
-      active ? 'border-b-4 border-indigo-500' : ''
+    className={`py-4 mr-4 border-b-4 cursor-pointer text-black hover:text-pink-500 ${
+      active ? 'border-pink-500' : 'border-white'
     }`}
   >
     {title}
@@ -74,7 +75,9 @@ const View: React.FunctionComponent<Props> = ({ view, issues }) => {
     }
   }, {})
 
-  let sortedKeys = Object.keys(groupedMatches).sort()
+  let sortedKeys = [...Object.keys(groupedMatches)]
+  sortedKeys.sort((a, b) => a.localeCompare(b))
+
   let [tab, setTab] = useState(0)
 
   return (
@@ -83,24 +86,19 @@ const View: React.FunctionComponent<Props> = ({ view, issues }) => {
         {sortedKeys.map((key, index) => (
           <Tab
             key={`${key}-${index}`}
-            title={key}
+            title={key === 'null' ? '-' : stripLabelPrefix(key)}
             active={index === tab}
             activate={() => setTab(index)}
           ></Tab>
         ))}
       </div>
-      {sortedKeys.map((key, index) => (
-        <div
-          key={`${key}-${index}`}
-          style={{ display: index === tab ? 'block' : 'none' }}
-        >
-          <IssueTable
-            pageSize={view.pageSize}
-            columns={view.columns}
-            issues={groupedMatches[sortedKeys[tab]]}
-          />
-        </div>
-      ))}
+      <div key={sortedKeys[tab]} style={{ display: 'block' }}>
+        <IssueTable
+          pageSize={view.pageSize}
+          columns={view.columns}
+          issues={groupedMatches[sortedKeys[tab]]}
+        />
+      </div>
     </div>
   )
 }

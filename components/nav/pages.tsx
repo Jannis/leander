@@ -7,20 +7,23 @@ import { useRouter } from 'next/router'
 
 const Pages: React.FunctionComponent<{}> = props => {
   const { query } = useRouter()
-  const { data: config } = useConfig()
+  const config = useConfig()
 
   return (
     <Section title="Views">
       {config.pages.map(page => (
-        <div
-          key={page.route}
-          className={page.route === query.page ? 'text-indigo-500 font-normal' : null}
-        >
+        <div key={page.route}>
           <Link
             href={{ pathname: '[page]', query: { config: query.config } }}
             as={{ pathname: page.route, query: { config: query.config } }}
           >
-            <a className="hover:text-indigo-500">{page.title}</a>
+            <a
+              className={`text-black hover:text-blue-500 ${
+                page.route === query.page ? 'font-medium text-blue-500' : ''
+              }`}
+            >
+              {page.title}
+            </a>
           </Link>
         </div>
       ))}

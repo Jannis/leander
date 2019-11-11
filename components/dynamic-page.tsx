@@ -1,18 +1,29 @@
 import Head from 'next/head'
+import { HttpLink } from 'apollo-link-http'
+import { InMemoryCache } from 'apollo-cache-inmemory'
+import { ApolloProvider } from '@apollo/react-hooks'
+import ApolloClient from 'apollo-client'
 import { useCookies } from 'react-cookie'
-import { ReactQueryConfigProvider } from 'react-query'
 
 import Nav from './nav'
-import { useGitHubAccessToken } from '../hooks/github'
 
-const queryConfig = {
-  refetchAllOnWindowFocus: false,
-  suspense: true,
-}
+let client = new ApolloClient({
+  link: new HttpLink({
+    uri: `http://${window.location.host}/graphql`,
+  }),
+  cache: new InMemoryCache(),
+})
 
-const Page: React.FunctionComponent<{}> = props => {
+const DynamicPage: React.FunctionComponent<{}> = props => {
+  let [cookies] = useCookies(['leander-access-token'])
+
+  if (!cookies['leander-access-token']) {
+    window.location.href = `/login?returnTo=${window.location.href}`
+    return <div />
+  }
+
   return (
-    <ReactQueryConfigProvider config={queryConfig}>
+    <ApolloProvider client={client}>
       <div>
         <Head>
           <title>Home</title>
@@ -34,7 +45,7 @@ const Page: React.FunctionComponent<{}> = props => {
             line-height: 1.5rem;
           }
         `}</style>
-        <div className="page font-sans font-light text-base leading-normal">
+        <div className="page font-sans font-normal text-sm leading-normal">
           <Nav />
           <div className="w-full flex p-4">{props.children}</div>
         </div>
@@ -47,8 +58,8 @@ const Page: React.FunctionComponent<{}> = props => {
           }
         `}</style>
       </div>
-    </ReactQueryConfigProvider>
+    </ApolloProvider>
   )
 }
 
-export default Page
+export default DynamicPage

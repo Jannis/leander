@@ -5,17 +5,27 @@ import dynamic from 'next/dynamic'
 import { useConfig } from '../hooks/config'
 
 import '../styles/index.css'
-
-const Page = dynamic(() => import('../components/page'), { ssr: false })
+import { useCookies } from 'react-cookie'
 
 export default () => {
   let router = useRouter()
+  let [cookies] = useCookies(['leander-access-token'])
+
   useEffect(() => {
-    if (router.query.config) {
-      router.push(`/issues?config=${router.query.config}`)
-    } else {
-      router.push('/issues')
+    if (!cookies['leander-access-token']) {
+      router.push(`/login?returnTo=${window.location.href}`)
+      return
     }
-  })
-  return <div />
+
+    if (window.location.search) {
+      router.push(`/issues${window.location.search}`)
+      return
+    }
+  }, [])
+
+  if (!router.query.config) {
+    return <div className="text-red-500">No `?config=` provided.</div>
+  } else {
+    return <div />
+  }
 }

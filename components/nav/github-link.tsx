@@ -1,8 +1,8 @@
-import GitHubIcon from '@material-ui/icons/GitHub'
+import { Icon } from 'antd'
 
 const GitHubLink: React.FunctionComponent<{ url: string }> = ({ url, ...props }) => (
   <a href={url}>
-    <GitHubIcon fontSize="small" />
+    <Icon type="github" />
     <span>{props.children}</span>
     <style jsx>{`
       a,
