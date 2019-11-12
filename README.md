@@ -2,6 +2,8 @@
 
 Efficient and transparent management of GitHub issues.
 
+![Screenshot](https://raw.githubusercontent.com/Jannis/leander/master/public/screenshot.png)
+
 ## Todo
 
 - [x] Authentication via GitHub App
