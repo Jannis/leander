@@ -8,6 +8,7 @@ const { HttpLink } = require('apollo-link-http')
 const Organization = require('./resolvers/organization')
 const Repository = require('./resolvers/repository')
 const Issue = require('./resolvers/issue')
+const User = require('./resolvers/user')
 
 const typeDefs = gql`
   type User {
@@ -85,6 +86,7 @@ const typeDefs = gql`
   }
 
   type Query {
+    user: User!
     organization(login: String!): Organization!
     repositories(owner: String!, names: [String!]!): [Repository!]!
     issues(owner: String!, repositories: [String!]!): [Issue!]!
@@ -123,6 +125,7 @@ const installGraphQLServer = async ({ app, path }) => {
         ...Organization.resolvers,
         ...Repository.resolvers,
         ...Issue.resolvers,
+        ...User.resolvers,
       },
       Mutation: {
         ...Issue.mutations,
