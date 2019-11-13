@@ -14,6 +14,7 @@ import '../styles/index.css'
 import 'antd/dist/antd.css'
 
 import { Spin, Icon } from 'antd'
+import { useUser } from '../hooks/user'
 
 const DynamicPage = dynamic(() => import('../components/dynamic-page'), { ssr: false })
 
@@ -74,13 +75,16 @@ const Page: React.FunctionComponent<{}> = props => {
     return <div>Unknown page "{router.query.page}"</div>
   }
 
+  let user = useUser()
   let organization = useOrganization(config.organization)
-
   let repositories = useRepositories(organization, config.repositories)
+
+  // Inject organization into repositories
   repositories.forEach(repository => {
     repository.organization = organization
   })
 
+  // Inject repositories into issues
   let issues = useIssues(organization, repositories).map(issue => {
     if (typeof issue.repository === 'string') {
       issue.repository = repositories.find(
@@ -89,6 +93,13 @@ const Page: React.FunctionComponent<{}> = props => {
     }
     return issue
   })
+
+  // If this is a user page, filter issues so only the ones assigned to this
+  // user show up
+  issues = issues.filter(
+    issue =>
+      issue.stats.assignees.find(assignee => assignee.id === user.id) !== undefined,
+  )
 
   return (
     <div className="flex flex-col w-full pt-6 mt-1">

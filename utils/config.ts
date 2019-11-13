@@ -65,6 +65,7 @@ export interface Section {
 }
 
 export interface Page {
+  user: boolean
   route: string
   title: string
   sections: Section[]
@@ -113,6 +114,7 @@ export const schema = gql`
     route: String!
     title: String!
     sections: [Section!]!
+    user: Boolean
   }
 
   type Section {
