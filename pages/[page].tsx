@@ -96,10 +96,12 @@ const Page: React.FunctionComponent<{}> = props => {
 
   // If this is a user page, filter issues so only the ones assigned to this
   // user show up
-  issues = issues.filter(
-    issue =>
-      issue.stats.assignees.find(assignee => assignee.id === user.id) !== undefined,
-  )
+  if (page.user) {
+    issues = issues.filter(
+      issue =>
+        issue.stats.assignees.find(assignee => assignee.id === user.id) !== undefined,
+    )
+  }
 
   return (
     <div className="flex flex-col w-full pt-6 mt-1">
