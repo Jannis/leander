@@ -159,6 +159,7 @@ const AssigneeActions: React.FunctionComponent<Props> = ({ issue }) => {
                 src={member.avatarUrl}
                 alt={member.name || member.login}
                 size="small"
+                style={{ width: 18, height: 18 }}
               />
               <span className="pl-2">{member.login}</span>
             </div>
@@ -176,7 +177,7 @@ const IssueActions: React.FunctionComponent<Props> = ({ issue }) => {
         <SeverityActions issue={issue} />
         <PriorityActions issue={issue} />
       </div>
-      <div className="w-full flex flex-row flex-wrap leading-loose bg-gray-100">
+      <div className="w-full flex flex-row flex-wrap leading-loose bg-gray-100 -mt-4">
         <AssigneeActions issue={issue} />
         <ProjectActions issue={issue} />
       </div>
