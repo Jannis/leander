@@ -326,6 +326,10 @@ const IssueTable: React.FunctionComponent<Props> = ({ columns, issues, pageSize 
     return COLUMNS[name]
   })
 
+  if (issues.length === 0) {
+    return <div>No matches</div>
+  }
+
   return <Table pageSize={pageSize} columns={columnsToUse} issues={issues} />
 }
 
