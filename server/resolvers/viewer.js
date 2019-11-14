@@ -1,8 +1,9 @@
 const gql = require('graphql-tag')
+const { GraphQLError } = require('graphql')
 
-const USER_QUERY = gql`
+const VIEWER_QUERY = gql`
   {
-    user: viewer {
+    viewer {
       id
       login
       name
@@ -11,11 +12,11 @@ const USER_QUERY = gql`
   }
 `
 
-const queryUser = async githubClient => {
-  console.log('Query user')
+const queryViewer = async githubClient => {
+  console.log('Query viewer')
 
   let { data, errors } = await githubClient.query({
-    query: USER_QUERY,
+    query: VIEWER_QUERY,
   })
 
   if (errors) {
@@ -23,20 +24,20 @@ const queryUser = async githubClient => {
   }
 
   if (data) {
-    return data.user
+    return data.viewer
   }
 }
 
 module.exports = {
   helpers: {
-    queryUser,
+    queryViewer,
   },
   resolvers: {
-    user: async (parent, args, { githubClient }) => {
+    viewer: async (parent, args, { githubClient }) => {
       if (!githubClient) {
         throw new GraphQLError('Unauthorized')
       }
-      return await queryUser(githubClient)
+      return await queryViewer(githubClient)
     },
   },
 }
