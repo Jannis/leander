@@ -1,4 +1,5 @@
 const gql = require('graphql-tag')
+const { GraphQLError } = require('graphql')
 
 const REPOSITORY_QUERY = gql`
   query repository($owner: String!, $name: String!) {

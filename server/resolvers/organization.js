@@ -1,4 +1,5 @@
 const gql = require('graphql-tag')
+const { GraphQLError } = require('graphql')
 
 const ORGANIZATION_QUERY = gql`
   query organization($login: String!) {

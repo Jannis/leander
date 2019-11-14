@@ -3,6 +3,7 @@ const moment = require('moment')
 const {
   helpers: { queryOrganization },
 } = require('./organization')
+const { GraphQLError } = require('graphql')
 
 const parseSeverity = labels =>
   labels.find(label => label.name === 'bug')
