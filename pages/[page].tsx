@@ -5,7 +5,7 @@ import dynamic from 'next/dynamic'
 import { useConfig } from '../hooks/config'
 import { VIEWS } from '../components/views'
 import { Config, Section } from '../utils/config'
-import { Issue, Organization, Repository } from '../utils/types'
+import { Issue, Organization, Repository, User } from '../utils/types'
 import { useOrganization } from '../hooks/organization'
 import { useIssues } from '../hooks/issues'
 import { useRepositories } from '../hooks/repository'
@@ -15,6 +15,8 @@ import 'antd/dist/antd.css'
 
 import { Spin, Icon } from 'antd'
 import { useUser } from '../hooks/user'
+import Spinner from '../components/spinner'
+import { ErrorSection } from '../components/errors'
 
 const DynamicPage = dynamic(() => import('../components/dynamic-page'), { ssr: false })
 
@@ -75,32 +77,80 @@ const Page: React.FunctionComponent<{}> = props => {
     return <div>Unknown page "{router.query.page}"</div>
   }
 
-  let user = useUser()
-  let organization = useOrganization(config.organization)
-  let repositories = useRepositories(organization, config.repositories)
+  let { loading: userLoading, error: userError, data: userData } = useUser()
+
+  let user = userData && userData.user
+  console.log('USER:', userData)
+
+  let { loading: orgLoading, error: orgError, data: orgData } = useOrganization(
+    { login: config.organization },
+    { skip: !userData },
+  )
+
+  let organization = orgData && orgData.organization
+  console.log('ORGANIZATION:', orgData)
+
+  let { loading: reposLoading, error: reposError, data: reposData } = useRepositories(
+    {
+      organization,
+      names: config.repositories,
+    },
+    { skip: !organization },
+  )
+
+  let repositories = reposData && reposData.repositories
+  console.log('REPOSITORIES:', repositories)
+
+  let { loading: issuesLoading, error: issuesError, data: issuesData } = useIssues(
+    { organization, repositories },
+    { skip: !repositories },
+  )
+
+  let issues = issuesData && issuesData.issues
+  console.log('ISSUES:', issues)
+
+  // Sort members of the organization alphabetically
+  if (organization) {
+    organization.members.sort((a: User, b: User) => a.login.localeCompare(b.login))
+  }
 
   // Inject organization into repositories
-  repositories.forEach(repository => {
-    repository.organization = organization
-  })
+  if (repositories) {
+    repositories.forEach(repository => {
+      repository.organization = organization
+    })
+  }
 
   // Inject repositories into issues
-  let issues = useIssues(organization, repositories).map(issue => {
-    if (typeof issue.repository === 'string') {
-      issue.repository = repositories.find(
-        repo => repo.name === (issue.repository as any),
-      )
-    }
-    return issue
-  })
+  if (issues) {
+    issues = issues.map(issue => {
+      if (typeof issue.repository === 'string') {
+        issue.repository = repositories.find(
+          repo => repo.name === (issue.repository as any),
+        )
+      }
+      return issue
+    })
+  }
 
   // If this is a user page, filter issues so only the ones assigned to this
   // user show up
-  if (page.user) {
+  if (page.user && issues) {
     issues = issues.filter(
       issue =>
         issue.stats.assignees.find(assignee => assignee.id === user.id) !== undefined,
     )
+  }
+
+  let loading = userLoading || orgLoading || reposLoading || issuesLoading
+  let error = userError || orgError || reposError || issuesError
+
+  if (loading) {
+    return <Spinner />
+  }
+
+  if (error) {
+    return <ErrorSection error={error} />
   }
 
   return (
@@ -123,17 +173,7 @@ const Page: React.FunctionComponent<{}> = props => {
 
 export default () => (
   <DynamicPage>
-    <Suspense
-      fallback={
-        <div className="w-full h-full flex justify-center items-center">
-          <Spin
-            indicator={
-              <Icon type="smile" theme="twoTone" spin style={{ fontSize: 48 }} />
-            }
-          />
-        </div>
-      }
-    >
+    <Suspense fallback={<Spinner />}>
       <Page />
     </Suspense>
   </DynamicPage>
