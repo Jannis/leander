@@ -1,10 +1,11 @@
 import gql from 'graphql-tag'
 import { useQuery } from '@apollo/react-hooks'
 import { User } from '../utils/types'
+import { QueryResult } from '@apollo/react-common'
 
 const USER_QUERY = gql`
   {
-    user {
+    user: viewer {
       id
       login
       name
@@ -13,28 +14,7 @@ const USER_QUERY = gql`
   }
 `
 
-export const useUser = (): User => {
-  let { loading, error, data } = useQuery(USER_QUERY, {
-    pollInterval: 1000 * 60,
+export const useUser = (): QueryResult<{ user: User }> =>
+  useQuery(USER_QUERY, {
+    fetchPolicy: 'no-cache',
   })
-
-  if (data) {
-    data = data.user
-  }
-
-  if (loading) {
-    throw new Promise((resolve, reject) => {
-      if (data) {
-        resolve(data)
-      } else if (error) {
-        reject(error)
-      }
-    })
-  }
-
-  if (error) {
-    throw error
-  }
-
-  return data
-}

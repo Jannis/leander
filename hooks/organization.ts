@@ -1,6 +1,7 @@
 import gql from 'graphql-tag'
 import { useQuery } from '@apollo/react-hooks'
 import { User, Organization } from '../utils/types'
+import { QueryResult } from '@apollo/react-common'
 
 const ORGANIZATION_QUERY = gql`
   query organization($login: String!) {
@@ -17,30 +18,12 @@ const ORGANIZATION_QUERY = gql`
   }
 `
 
-export const useOrganization = (name: string): Organization => {
-  let { loading, error, data } = useQuery(ORGANIZATION_QUERY, {
-    variables: { login: name },
+export const useOrganization = (
+  { login }: { login: string },
+  { skip }: { skip: boolean } = { skip: false },
+): QueryResult<{ organization: Organization }> =>
+  useQuery(ORGANIZATION_QUERY, {
+    variables: { login },
     pollInterval: 1000 * 60,
+    skip,
   })
-
-  if (data) {
-    data = data.organization
-    data.members.sort((a: User, b: User) => a.login.localeCompare(b.login))
-  }
-
-  if (loading) {
-    throw new Promise((resolve, reject) => {
-      if (data) {
-        resolve(data)
-      } else if (error) {
-        reject(error)
-      }
-    })
-  }
-
-  if (error) {
-    throw error
-  }
-
-  return data
-}

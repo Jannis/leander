@@ -1,6 +1,7 @@
 import { Organization, Repository } from '../utils/types'
 import { useQuery } from '@apollo/react-hooks'
 import gql from 'graphql-tag'
+import { QueryResult } from '@apollo/react-common'
 
 const REPOSITORIES_QUERY = gql`
   query repositories($owner: String!, $names: [String!]!) {
@@ -17,31 +18,17 @@ const REPOSITORIES_QUERY = gql`
 `
 
 export const useRepositories = (
-  organization: Organization,
-  names: string[],
-): Repository[] => {
-  let { loading, error, data } = useQuery(REPOSITORIES_QUERY, {
-    variables: { owner: organization.login, names },
+  {
+    organization,
+    names,
+  }: {
+    organization: Organization
+    names: string[]
+  },
+  { skip }: { skip: boolean },
+): QueryResult<{ repositories: Repository[] }> =>
+  useQuery(REPOSITORIES_QUERY, {
+    variables: { owner: organization && organization.login, names },
     pollInterval: 1000 * 30,
+    skip,
   })
-
-  if (data) {
-    data = data.repositories
-  }
-
-  if (loading) {
-    throw new Promise((resolve, reject) => {
-      if (data) {
-        resolve(data)
-      } else if (error) {
-        reject(error)
-      }
-    })
-  }
-
-  if (error) {
-    throw error
-  }
-
-  return data
-}

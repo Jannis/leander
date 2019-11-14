@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import gql from 'graphql-tag'
 import { useAsync, AsyncState } from 'react-async'
 import ApolloClient from 'apollo-client'
+import { QueryResult } from '@apollo/react-common'
 
 const ISSUES_QUERY = gql`
   query issues($owner: String!, $repositories: [String!]!) {
@@ -46,35 +47,21 @@ const ISSUES_QUERY = gql`
 `
 
 export const useIssues = (
-  organization: Organization,
-  repositories: Repository[],
-): Issue[] => {
-  let { loading, error, data } = useQuery(ISSUES_QUERY, {
+  {
+    organization,
+    repositories,
+  }: {
+    organization: Organization
+    repositories: Repository[]
+  },
+  { skip }: { skip: boolean },
+): QueryResult<{ issues: Issue[] }> =>
+  useQuery(ISSUES_QUERY, {
     variables: {
-      owner: organization.login,
-      repositories: repositories.map(repo => repo.name),
+      owner: organization && organization.login,
+      repositories: repositories && repositories.map(repo => repo.name),
     },
+    skip,
     // TODO: pollInterval: 1000 * 30,
     // The problem is that it causes the table to jump back to the first page
   })
-
-  if (data) {
-    data = data.issues
-  }
-
-  if (loading) {
-    throw new Promise((resolve, reject) => {
-      if (data) {
-        resolve(data)
-      } else if (error) {
-        reject(error)
-      }
-    })
-  }
-
-  if (error) {
-    throw error
-  }
-
-  return data
-}
