@@ -62,6 +62,5 @@ export const useIssues = (
       repositories: repositories && repositories.map(repo => repo.name),
     },
     skip,
-    // TODO: pollInterval: 1000 * 30,
-    // The problem is that it causes the table to jump back to the first page
+    pollInterval: 1000 * 30,
   })

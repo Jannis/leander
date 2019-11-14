@@ -37,6 +37,7 @@ const queryOrganization = async (githubClient, login) => {
   let { data, errors } = await githubClient.query({
     query: ORGANIZATION_QUERY,
     variables: { login },
+    fetchPolicy: 'no-cache',
   })
 
   if (errors) {

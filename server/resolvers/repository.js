@@ -42,6 +42,7 @@ module.exports = {
           let { data, errors } = await githubClient.query({
             query: REPOSITORY_QUERY,
             variables: { owner, name },
+            fetchPolicy: 'no-cache',
           })
 
           if (errors) {
