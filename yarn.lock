@@ -1313,16 +1313,6 @@ accepts@^1.3.5, accepts@~1.3.5, accepts@~1.3.7:
     mime-types "~2.1.24"
     negotiator "0.6.2"
 
-acorn-es7-plugin@^1.1.7:
-  version "1.1.7"
-  resolved "https://registry.npmjs.org/acorn-es7-plugin/-/acorn-es7-plugin-1.1.7.tgz#f2ee1f3228a90eead1245f9ab1922eb2e71d336b"
-  integrity sha1-8u4fMiipDurRJF+asZIusucdM2s=
-
-"acorn@>= 2.5.2 <= 5.7.3":
-  version "5.7.3"
-  resolved "https://registry.npmjs.org/acorn/-/acorn-5.7.3.tgz#67aa231bf8812974b85235a96771eb6bd07ea279"
-  integrity sha512-T/zvzYRfbVojPWahDsE5evJdHb3oJoQfFbsrKM7w5Zcs++Tr257tia3BmMP8XYVjp1S9RZXQMh7gao96BlqZOw==
-
 acorn@^6.2.1:
   version "6.3.0"
   resolved "https://registry.npmjs.org/acorn/-/acorn-6.3.0.tgz#0087509119ffa4fc0a0041d1e93a417e68cb856e"
@@ -3190,11 +3180,6 @@ core-js-compat@^3.1.1:
     browserslist "^4.7.2"
     semver "^6.3.0"
 
-core-js@3, core-js@^3.0.1:
-  version "3.4.0"
-  resolved "https://registry.npmjs.org/core-js/-/core-js-3.4.0.tgz#29ea478601789c72f2978e9bb98f43546f89d3aa"
-  integrity sha512-lQxb4HScV71YugF/X28LtePZj9AB7WqOpcB+YztYxusvhrgZiQXPmCYfPC5LHsw/+ScEtDbXU3xbqH3CjBRmYA==
-
 core-js@^1.0.0:
   version "1.2.7"
   resolved "https://registry.npmjs.org/core-js/-/core-js-1.2.7.tgz#652294c14651db28fa93bd2d5ff2983a4f08c636"
@@ -3204,6 +3189,11 @@ core-js@^2.4.0, core-js@^2.6.5:
   version "2.6.10"
   resolved "https://registry.npmjs.org/core-js/-/core-js-2.6.10.tgz#8a5b8391f8cc7013da703411ce5b585706300d7f"
   integrity sha512-I39t74+4t+zau64EN1fE5v2W31Adtc/REhzWN+gWRRXg6WH5qAsZm62DHpQ1+Yhe4047T55jvzz7MUqF/dBBlA==
+
+core-js@^3.0.1:
+  version "3.4.0"
+  resolved "https://registry.npmjs.org/core-js/-/core-js-3.4.0.tgz#29ea478601789c72f2978e9bb98f43546f89d3aa"
+  integrity sha512-lQxb4HScV71YugF/X28LtePZj9AB7WqOpcB+YztYxusvhrgZiQXPmCYfPC5LHsw/+ScEtDbXU3xbqH3CjBRmYA==
 
 core-util-is@~1.0.0:
   version "1.0.2"
@@ -3972,14 +3962,6 @@ extracted-loader@1.0.4:
   version "1.0.4"
   resolved "https://registry.npmjs.org/extracted-loader/-/extracted-loader-1.0.4.tgz#e1a3f1791813c14091a1959e261e23e95dd90115"
   integrity sha512-G8A0hT/WCWIjesZm7BwbWdST5dQ08GNnCpTrJT/k/FYzuiJwlV1gyWjnuoizOzAR4jpEYXG2J++JyEKN/EB26Q==
-
-fast-async@^6.3.8:
-  version "6.3.8"
-  resolved "https://registry.npmjs.org/fast-async/-/fast-async-6.3.8.tgz#031b9e1d5a84608b117b3e7c999ad477ed2b08a2"
-  integrity sha512-TjlooyqrYm/gOXjD2UHNwfrWkvTbzU105Nk4bvcRTeRoL+wIeK6rqbqDg3CN9z5p37cE2iXhP6SxQFz8OVIaUg==
-  dependencies:
-    nodent-compiler "^3.2.10"
-    nodent-runtime ">=3.2.1"
 
 fast-deep-equal@^2.0.1:
   version "2.0.1"
@@ -5710,26 +5692,6 @@ nodemon@^1.19.4:
     touch "^3.1.0"
     undefsafe "^2.0.2"
     update-notifier "^2.5.0"
-
-nodent-compiler@^3.2.10:
-  version "3.2.11"
-  resolved "https://registry.npmjs.org/nodent-compiler/-/nodent-compiler-3.2.11.tgz#8f4bc703d7d8d0e563f5e09ea22efdce04dbaf9b"
-  integrity sha512-rfDrGWdgIJYomPUzR8nXiWNuIhJ7cVodPeZP3Ho65LEycuaX2uVNZ0ytpcfrmUKzdFeLRtye9+pHe8OynPZuPQ==
-  dependencies:
-    acorn ">= 2.5.2 <= 5.7.3"
-    acorn-es7-plugin "^1.1.7"
-    nodent-transform "^3.2.9"
-    source-map "^0.5.7"
-
-nodent-runtime@>=3.2.1:
-  version "3.2.1"
-  resolved "https://registry.npmjs.org/nodent-runtime/-/nodent-runtime-3.2.1.tgz#9e2755d85e39f764288f0d4752ebcfe3e541e00e"
-  integrity sha512-7Ws63oC+215smeKJQCxzrK21VFVlCFBkwl0MOObt0HOpVQXs3u483sAmtkF33nNqZ5rSOQjB76fgyPBmAUrtCA==
-
-nodent-transform@^3.2.9:
-  version "3.2.9"
-  resolved "https://registry.npmjs.org/nodent-transform/-/nodent-transform-3.2.9.tgz#ec11a6116b5476e60bc212371cf6b8e4c74f40b6"
-  integrity sha512-4a5FH4WLi+daH/CGD5o/JWRR8W5tlCkd3nrDSkxbOzscJTyTUITltvOJeQjg3HJ1YgEuNyiPhQbvbtRjkQBByQ==
 
 nopt@^4.0.1:
   version "4.0.1"
@@ -7466,15 +7428,6 @@ react-proxy@^1.1.7:
     lodash "^4.6.1"
     react-deep-force-update "^1.0.0"
 
-react-query@^0.3.6:
-  version "0.3.6"
-  resolved "https://registry.npmjs.org/react-query/-/react-query-0.3.6.tgz#2210705a3dd2e3de4fabb54a60c309edc44c51c9"
-  integrity sha512-3RgeWCra976MadgT8W/g3Ds6BwDkvy0suaN/gmnndjwwvfw0SlIru7k4oC4EXep9n5mpBCS1+FbAZB7878kp7A==
-  dependencies:
-    "@babel/plugin-transform-regenerator" "^7.4.5"
-    core-js "3"
-    fast-async "^6.3.8"
-
 react-slick@~0.25.2:
   version "0.25.2"
   resolved "https://registry.npmjs.org/react-slick/-/react-slick-0.25.2.tgz#56331b67d47d8bcfe2dceb6acab1c8fd5bd1f6bc"
@@ -8001,7 +7954,7 @@ source-map@0.7.3:
   resolved "https://registry.npmjs.org/source-map/-/source-map-0.7.3.tgz#5302f8169031735226544092e64981f751750383"
   integrity sha512-CkCj6giN3S+n9qrYiBTX5gystlENnRW5jZeNLHpe6aue+SrHcG5VYwujhW9s4dY31mEGsxBDrHR6oI69fTXsaQ==
 
-source-map@^0.5.0, source-map@^0.5.6, source-map@^0.5.7:
+source-map@^0.5.0, source-map@^0.5.6:
   version "0.5.7"
   resolved "https://registry.npmjs.org/source-map/-/source-map-0.5.7.tgz#8a039d2d1021d22d1ea14c80d8ea468ba2ef3fcc"
   integrity sha1-igOdLRAh0i0eoUyA2OpGi6LvP8w=

@@ -35,7 +35,6 @@
     "react-cookie": "^4.0.1",
     "react-dom": "16.11.0",
     "react-promise-suspense": "^0.3.1",
-    "react-query": "^0.3.6",
     "react-table": "^7.0.0-beta.12",
     "searchjs": "^1.0.2"
   },
