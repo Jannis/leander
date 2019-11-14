@@ -302,7 +302,6 @@ module.exports = {
             assignees: assignees.map(parseUser),
           },
         }
-        console.log('RESULT:', result)
         return result
       } else {
         return null

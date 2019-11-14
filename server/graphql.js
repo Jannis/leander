@@ -116,8 +116,6 @@ const createGithubClient = ({ cache, accessToken }) =>
   })
 
 const installGraphQLServer = async ({ app, path }) => {
-  let cache = new InMemoryCache()
-
   let apolloServer = new ApolloServer({
     typeDefs,
     resolvers: {
@@ -142,14 +140,17 @@ const installGraphQLServer = async ({ app, path }) => {
         'request.credentials': 'include',
       },
     },
-    context: ({ req }) => ({
-      githubClient: req.cookies['leander-access-token']
-        ? createGithubClient({
-            cache,
-            accessToken: req.cookies['leander-access-token'],
-          })
-        : undefined,
-    }),
+    context: ({ req }) => {
+      let cache = new InMemoryCache()
+      return {
+        githubClient: req.cookies['leander-access-token']
+          ? createGithubClient({
+              cache,
+              accessToken: req.cookies['leander-access-token'],
+            })
+          : undefined,
+      }
+    },
   })
 
   apolloServer.applyMiddleware({
