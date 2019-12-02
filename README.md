@@ -4,6 +4,29 @@ Efficient and transparent management of GitHub issues.
 
 ![Screenshot](https://raw.githubusercontent.com/Jannis/leander/master/public/screenshot.png)
 
+## Build Instructions
+
+```sh
+# Install dependencies
+yarn \
+
+# Build the server
+cd leander-server \
+  && yarn build \
+  && cd ..
+
+# Build and run the client
+ cd leander-app \
+  && yarn build \
+  && yarn start
+```
+
+During development both client and server can be run with
+
+```sh
+yarn dev
+```
+
 ## Todo
 
 - [x] Authentication via GitHub App

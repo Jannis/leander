@@ -1,0 +1,37 @@
+{
+  "name": "leander-server",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "yarn graphql-codegen && tsc",
+    "dev": "NODE_ENV=development nodemon -w . -e ts --exec 'ts-node src/server.ts'",
+    "graphql-codegen": "graphql-codegen --config graphql-codegen.yml"
+  },
+  "dependencies": {
+    "apollo-server": "^2.9.9",
+    "cookie-parser": "^1.4.4",
+    "cors": "^2.8.5",
+    "cross-fetch": "^3.0.4",
+    "dotenv": "^8.2.0",
+    "express-session": "^1.17.0",
+    "github-webhook-handler": "^1.0.0",
+    "graphql-tag": "^2.10.1",
+    "lru-cache": "^5.1.1",
+    "moment": "^2.24.0",
+    "passport": "^0.4.0",
+    "passport-github": "^1.1.0"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^1.8.3",
+    "@graphql-codegen/introspection": "1.8.3",
+    "@graphql-codegen/typescript": "1.8.3",
+    "@graphql-codegen/typescript-resolvers": "1.8.3",
+    "@types/cookie-parser": "^1.4.2",
+    "@types/cors": "^2.8.6",
+    "@types/express-session": "^1.15.15",
+    "@types/lru-cache": "^5.1.0",
+    "@types/moment": "^2.13.0",
+    "@types/passport": "^1.0.1",
+    "@types/passport-github": "^1.1.5"
+  }
+}
